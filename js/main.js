@@ -81,9 +81,11 @@
     ctx.fillStyle = C_C; ctx.fillText((dyC * 180 / Math.PI).toFixed(1) + "°", C[0] + 8, C[1] + 24);
   }
 
-  let raf = null;
-  function loop() {
-    phase = (phase + 0.0028) % (Math.PI * 2);
+  let raf = null, lastT = performance.now();
+  function loop(now) {
+    /* 墙钟增量驱动：帧率无关；rAF 长时间挂起后恢复也不会跳变 */
+    phase = (phase + Math.min(100, now - lastT) * 0.000168) % (Math.PI * 2);
+    lastT = now;
     drawHero();
     raf = requestAnimationFrame(loop);
   }
