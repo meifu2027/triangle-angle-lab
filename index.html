@@ -94,6 +94,18 @@
   </div>
 
   <div class="lab reveal">
+    <div class="lab-toolbar" id="labToolbar">
+      <button class="btn btn-primary" id="benchPlay" data-i18n="bench.btn.play">&9654; 巡游</button>
+      <label class="tb-speed">
+        <span data-i18n="bench.speed">巡游速度</span>
+        <input type="range" id="speedRange" min="0.2" max="3" step="0.1" value="1" aria-label="speed">
+        <output class="en" id="speedOut">1.0&times;</output>
+      </label>
+      <button class="btn btn-ghost" id="benchReset" data-i18n="bench.btn.reset">&8634; 重置</button>
+      <button class="btn btn-ghost" id="spaceReset" data-i18n="space.btn.reset">&8634; 重置视角</button>
+      <button class="btn btn-ghost" id="panelToggle" type="button">&#8854; 折叠参数</button>
+    </div>
+
     <div class="lab-main">
       <div class="lab-twin">
         <div class="lab-stage">
@@ -107,128 +119,111 @@
           <div class="stage-hint" id="spaceHint" data-i18n="space.hint">拖动旋转视角 · 滚轮缩放 · 与实验台联动</div>
         </div>
       </div>
-
-      <div class="cruise-bar" id="cruiseBar">
-        <button class="btn btn-primary" id="cruisePause" type="button" data-i18n="bench.btn.pause">&#9208; 暂停</button>
-        <label class="cruise-speed">
-          <span data-i18n="bench.speed">巡游速度</span>
-          <input type="range" id="speedRange2" min="0.2" max="3" step="0.1" value="1" aria-label="speed">
-          <output class="en" id="speedOut2">1.0&times;</output>
-        </label>
-        <button class="btn btn-ghost" id="cruiseToggle" type="button">&#8854; 展开参数</button>
-      </div>
     </div>
 
-    <aside class="lab-panel lab-panel-twin" id="labPanel">
-      <div class="panel-block">
-        <p class="panel-label" data-i18n="bench.panel.params">参数</p>
-        <label class="param-row">
-          <span data-i18n="bench.base">底边 a</span>
-          <input type="range" id="baseRange" min="0.2" max="10" step="0.01" value="1" aria-label="base a">
-          <input class="en" type="number" id="baseInput" min="0.01" step="any" value="1" aria-label="base a value">
-        </label>
-        <label class="param-row">
-          <span data-i18n="bench.height">高 h</span>
-          <input type="range" id="heightRange" min="0.2" max="10" step="0.01" value="1" aria-label="height h">
-          <input class="en" type="number" id="heightInput" min="0.01" step="any" value="1" aria-label="height h value">
-        </label>
-        <label class="param-row">
-          <span data-i18n="bench.speed">巡游速度</span>
-          <input type="range" id="speedRange" min="0.2" max="3" step="0.1" value="1" aria-label="speed">
-          <output class="en" id="speedOut">1.0&times;</output>
-        </label>
-      </div>
-
-      <div class="panel-block">
-        <p class="panel-label" data-i18n="bench.panel.pos">位置 t</p>
-        <form class="t-row" id="tForm">
-          <input class="en" type="text" id="tInput" value="0.50" autocomplete="off"
-                 aria-label="coordinate t" spellcheck="false">
-          <button class="chip" type="button" id="tNegInf" data-i18n="bench.negInf">&minus;&infin;</button>
-          <button class="chip" type="button" id="tMid" data-i18n="bench.mid">中点</button>
-          <button class="chip" type="button" id="tPosInf" data-i18n="bench.posInf">+&infin;</button>
-        </form>
-        <label class="slider-row slider-row-solo">
-          <span class="en" aria-hidden="true">t</span>
-          <input type="range" id="navRange" min="-1000" max="1000" step="1" value="0" aria-label="position navigator">
-          <output class="en" id="tOut">0.50</output>
-        </label>
-        <p class="mode-note" id="tError" role="status"></p>
-      </div>
-
-      <div class="panel-block">
-        <p class="panel-label" data-i18n="bench.panel.measure">测量</p>
-        <div class="meter">
-          <div class="meter-row meter-row-angle">
-            <span class="angle-tag tag-a">&ang;A</span>
-            <div class="meter-bar"><div class="meter-fill fill-a" id="fillA"></div></div>
-            <output class="en meter-big c-a" id="mA">53.13&deg;</output>
-          </div>
-          <div class="meter-row meter-row-angle">
-            <span class="angle-tag tag-b">&ang;B</span>
-            <div class="meter-bar"><div class="meter-fill fill-b" id="fillB"></div></div>
-            <output class="en meter-big c-b" id="mB">63.43&deg;</output>
-          </div>
-          <div class="meter-row meter-row-angle">
-            <span class="angle-tag tag-c">&ang;C</span>
-            <div class="meter-bar"><div class="meter-fill fill-c" id="fillC"></div></div>
-            <output class="en meter-big c-c" id="mC">63.43&deg;</output>
-          </div>
-          <p class="mode-note" id="benchStatus">等腰三角形</p>
-        </div>
-      </div>
-
-      <div class="panel-block">
-        <p class="panel-label" data-i18n="bench.panel.view">显示与图层</p>
-        <div class="check-grid">
-          <label class="check-row">
-            <input type="checkbox" id="showAids" checked>
-            <span data-i18n="bench.aids">显示垂线与角弧</span>
+    <div class="panel-fold" id="panelFold">
+      <aside class="lab-panel lab-panel-twin" id="labPanel">
+        <div class="panel-block">
+          <p class="panel-label" data-i18n="bench.panel.params">参数</p>
+          <label class="param-row">
+            <span data-i18n="bench.base">底边 a</span>
+            <input type="range" id="baseRange" min="0.2" max="10" step="0.01" value="1" aria-label="base a">
+            <input class="en" type="number" id="baseInput" min="0.01" step="any" value="1" aria-label="base a value">
           </label>
-          <label class="check-row">
-            <input type="checkbox" id="autoFit" checked>
-            <span data-i18n="bench.autofit">自动取景</span>
+          <label class="param-row">
+            <span data-i18n="bench.height">高 h</span>
+            <input type="range" id="heightRange" min="0.2" max="10" step="0.01" value="1" aria-label="height h">
+            <input class="en" type="number" id="heightInput" min="0.01" step="any" value="1" aria-label="height h value">
           </label>
-          <label class="check-row">
-            <input type="checkbox" id="showPlane" checked>
-            <span data-i18n="space.plane">约束平面 x+y+z = 180&deg;</span>
-          </label>
-          <label class="check-row">
-            <input type="checkbox" id="showCurve" checked>
-            <span data-i18n="space.curve">轨迹曲线（当前 a、h）</span>
-          </label>
-          <label class="check-row">
-            <input type="checkbox" id="showAxes" checked>
-            <span data-i18n="space.axes">三根坐标轴</span>
-          </label>
-          <label class="check-row">
-            <input type="checkbox" id="autoSpin" checked>
-            <span data-i18n="space.spin">缓慢自转</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="panel-block">
-        <p class="panel-label" data-i18n="space.panel.measure">当前点</p>
-        <div class="meter">
-          <p class="space-point en" id="spacePoint">
-            P = (<span class="c-a">53.13&deg;</span>, <span class="c-b">63.43&deg;</span>, <span class="c-c">63.43&deg;</span>)
-          </p>
-          <div class="meter-row">
-            <span data-i18n="space.sum">内角和</span>
-            <div class="meter-bar"><div class="meter-fill" id="spaceSumFill" style="width:100%"></div></div>
-            <output class="en" id="spaceSum">180.000&deg;</output>
+          <div class="check-grid">
+            <label class="check-row">
+              <input type="checkbox" id="showAids" checked>
+              <span data-i18n="bench.aids">显示垂线与角弧</span>
+            </label>
+            <label class="check-row">
+              <input type="checkbox" id="autoFit" checked>
+              <span data-i18n="bench.autofit">自动取景</span>
+            </label>
           </div>
         </div>
-        <p class="mode-note" data-i18n="space.note">曲线在两端的极限点即 § 01 的两个退化时刻；顶点位于中点上方时，P 恰在曲线的最「高」处。</p>
-      </div>
 
-      <div class="panel-actions">
-        <button class="btn btn-primary" id="benchPlay" data-i18n="bench.btn.play">&9654; 巡游</button>
-        <button class="btn btn-ghost" id="benchReset" data-i18n="bench.btn.reset">&8634; 重置</button>
-        <button class="btn btn-ghost" id="spaceReset" data-i18n="space.btn.reset">&8634; 重置视角</button>
-      </div>
-    </aside>
+        <div class="panel-block">
+          <p class="panel-label" data-i18n="bench.panel.pos">位置 t</p>
+          <form class="t-row" id="tForm">
+            <input class="en" type="text" id="tInput" value="0.50" autocomplete="off"
+                   aria-label="coordinate t" spellcheck="false">
+            <button class="chip" type="button" id="tNegInf" data-i18n="bench.negInf">&minus;&infin;</button>
+            <button class="chip" type="button" id="tMid" data-i18n="bench.mid">中点</button>
+            <button class="chip" type="button" id="tPosInf" data-i18n="bench.posInf">+&infin;</button>
+          </form>
+          <label class="slider-row slider-row-solo">
+            <span class="en" aria-hidden="true">t</span>
+            <input type="range" id="navRange" min="-1000" max="1000" step="1" value="0" aria-label="position navigator">
+            <output class="en" id="tOut">0.50</output>
+          </label>
+          <p class="mode-note" id="tError" role="status"></p>
+        </div>
+
+        <div class="panel-block">
+          <p class="panel-label" data-i18n="bench.panel.measure">测量</p>
+          <div class="meter">
+            <div class="meter-row meter-row-angle">
+              <span class="angle-tag tag-a">&ang;A</span>
+              <div class="meter-bar"><div class="meter-fill fill-a" id="fillA"></div></div>
+              <output class="en meter-big c-a" id="mA">53.13&deg;</output>
+            </div>
+            <div class="meter-row meter-row-angle">
+              <span class="angle-tag tag-b">&ang;B</span>
+              <div class="meter-bar"><div class="meter-fill fill-b" id="fillB"></div></div>
+              <output class="en meter-big c-b" id="mB">63.43&deg;</output>
+            </div>
+            <div class="meter-row meter-row-angle">
+              <span class="angle-tag tag-c">&ang;C</span>
+              <div class="meter-bar"><div class="meter-fill fill-c" id="fillC"></div></div>
+              <output class="en meter-big c-c" id="mC">63.43&deg;</output>
+            </div>
+            <p class="mode-note" id="benchStatus">等腰三角形</p>
+          </div>
+        </div>
+
+        <div class="panel-block panel-block-dark">
+          <p class="panel-label" data-i18n="space.panel.layers">图层</p>
+          <div class="check-grid">
+            <label class="check-row">
+              <input type="checkbox" id="showPlane" checked>
+              <span data-i18n="space.plane">约束平面 x+y+z = 180&deg;</span>
+            </label>
+            <label class="check-row">
+              <input type="checkbox" id="showCurve" checked>
+              <span data-i18n="space.curve">轨迹曲线（当前 a、h）</span>
+            </label>
+            <label class="check-row">
+              <input type="checkbox" id="showAxes" checked>
+              <span data-i18n="space.axes">三根坐标轴</span>
+            </label>
+            <label class="check-row">
+              <input type="checkbox" id="autoSpin" checked>
+              <span data-i18n="space.spin">缓慢自转</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="panel-block panel-block-dark">
+          <p class="panel-label" data-i18n="space.panel.measure">当前点</p>
+          <div class="meter">
+            <p class="space-point en" id="spacePoint">
+              P = (<span class="c-a">53.13&deg;</span>, <span class="c-b">63.43&deg;</span>, <span class="c-c">63.43&deg;</span>)
+            </p>
+            <div class="meter-row">
+              <span data-i18n="space.sum">内角和</span>
+              <div class="meter-bar"><div class="meter-fill" id="spaceSumFill" style="width:100%"></div></div>
+              <output class="en" id="spaceSum">180.000&deg;</output>
+            </div>
+          </div>
+          <p class="mode-note" data-i18n="space.note">曲线在两端的极限点即 § 01 的两个退化时刻；顶点位于中点上方时，P 恰在曲线的最「高」处。</p>
+        </div>
+      </aside>
+    </div>
   </div>
 </section>
 

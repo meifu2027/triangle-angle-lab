@@ -320,10 +320,19 @@ input[type=range]::-moz-range-thumb{
 
 /* ---- 并排双视图实验室（§02 平面 × 角度空间） ---- */
 .sect-twin .lab{display:flex;flex-direction:column;gap:24px}
+.lab-toolbar{
+  position:sticky;top:10px;z-index:20;
+  display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;
+  border:1px solid var(--line);border-radius:4px;background:var(--card);padding:10px 16px;
+  box-shadow:0 6px 22px rgba(33,29,22,.14);
+}
+.lab-toolbar .btn{padding:10px 14px}
+.tb-speed{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-soft)}
+.tb-speed input[type=range]{width:130px}
+.tb-speed output{font-family:var(--serif-en);font-size:14px;color:var(--ink);min-width:40px;text-align:right}
 .lab-twin{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 .lab-stage{transition:min-height .5s ease}
-.sect-twin.is-cruising:not(.is-panel-open) .lab-twin .lab-stage{min-height:min(74vh,820px)}
-.sect-twin.is-cruising:not(.is-panel-open) .lab-panel-twin{display:none}
+.sect-twin.panel-collapsed .lab-twin .lab-stage{min-height:min(74vh,820px)}
 .stage-tag{
   position:absolute;top:14px;left:16px;z-index:2;pointer-events:none;
   font-family:var(--serif-en);font-size:12px;letter-spacing:.26em;color:var(--ink-faint);
@@ -340,23 +349,48 @@ input[type=range]::-moz-range-thumb{
 .lab-stage.is-dark .stage-tag{color:#8d8471}
 .lab-stage.is-dark .stage-hint{background:rgba(29,25,18,.85);border-color:var(--night-line);color:#8d8471}
 .lab-stage.is-dark canvas:focus-visible{outline-color:var(--night-ink)}
+/* 参数面板平滑折叠：grid 行高 1fr→0fr + 内边距/外边距同步收拢，绝不瞬间出现/消失 */
+.panel-fold{
+  display:grid;grid-template-rows:1fr;
+  transition:grid-template-rows .55s cubic-bezier(.4,0,.2,1),margin-top .55s cubic-bezier(.4,0,.2,1);
+}
+.panel-fold>.lab-panel{
+  min-height:0;overflow:hidden;
+  transition:opacity .45s ease,padding .55s cubic-bezier(.4,0,.2,1),border-width .55s cubic-bezier(.4,0,.2,1);
+}
+.sect-twin.panel-collapsed .panel-fold{grid-template-rows:0fr;margin-top:-24px}
+.sect-twin.panel-collapsed .panel-fold>.lab-panel{
+  opacity:0;padding-top:0;padding-bottom:0;border-top-width:0;border-bottom-width:0;
+}
 .lab-panel-twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:26px 34px}
-.lab-panel-twin .panel-actions{grid-column:1/-1;margin-top:0}
 .check-grid{display:flex;flex-direction:column;gap:10px}
+/* 角度空间专属面板块：与暗色画布同主题，调参更直观 */
+.panel-block-dark{
+  background:
+    linear-gradient(rgba(233,224,203,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(233,224,203,.04) 1px,transparent 1px),
+    var(--night-soft);
+  background-size:36px 36px,36px 36px,auto;
+  border:1px solid var(--night-line);border-radius:4px;padding:18px;
+  border-bottom:1px solid var(--night-line);
+}
+.panel-block-dark .panel-label{color:#e8724f}
+.panel-block-dark .check-row,.panel-block-dark .meter-row{color:#b5ab97}
+.panel-block-dark .meter-row output{color:var(--night-ink)}
+.panel-block-dark .space-point{color:var(--night-ink)}
+.panel-block-dark .c-a{color:#e8724f}
+.panel-block-dark .c-b{color:#8fb3cc}
+.panel-block-dark .c-c{color:#d3ac5e}
+.panel-block-dark .meter-bar{background:#15120d;border-color:var(--night-line)}
+.panel-block-dark .mode-note{color:#8d8471}
+.panel-block-dark input[type=checkbox]{accent-color:#e8724f}
+.panel-block-dark :focus-visible{outline-color:var(--night-ink)}
 .param-row{display:grid;grid-template-columns:52px 1fr 72px;align-items:center;gap:10px;font-size:14px;color:var(--ink-soft);margin-bottom:14px}
 .param-row output,.param-row input[type=number]{
   width:100%;padding:7px 9px;font-family:var(--serif-en);font-size:14px;color:var(--ink);
   background:var(--paper-deep);border:1px solid var(--line);border-radius:2px;text-align:right;
 }
 .param-row input[type=number]:focus{border-color:var(--vermil);outline:none}
-.cruise-bar{
-  display:none;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;
-  margin-top:24px;border:1px solid var(--line);border-radius:4px;background:var(--card);padding:12px 18px;
-}
-.sect-twin.is-cruising .cruise-bar{display:flex}
-.cruise-speed{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--ink-soft)}
-.cruise-speed input[type=range]{width:150px}
-.cruise-speed output{font-family:var(--serif-en);font-size:14px;color:var(--ink);min-width:44px;text-align:right}
 #solverCanvas{cursor:grab}
 #solverCanvas.is-grabbing{cursor:grabbing}
 
@@ -458,7 +492,9 @@ input[type=range]::-moz-range-thumb{
   .sect-lab .lab{grid-template-columns:1fr}
   .lab-twin{grid-template-columns:1fr}
   .lab-stage{min-height:420px}
-  .sect-twin.is-cruising:not(.is-panel-open) .lab-twin .lab-stage{min-height:70vh}
+  .sect-twin.panel-collapsed .lab-twin .lab-stage{min-height:70vh}
+  .lab-toolbar{top:6px;gap:10px;padding:8px 12px}
+  .tb-speed input[type=range]{width:100px}
   .hero-vertical{display:none}
 }
 @media (max-width:560px){
@@ -471,7 +507,8 @@ input[type=range]::-moz-range-thumb{
   .meter-big{font-size:20px}
   .lab-panel{padding:22px 18px}
   .param-row{grid-template-columns:48px 1fr 64px}
-  .cruise-speed input[type=range]{width:110px}
+  .lab-toolbar .btn{padding:9px 10px;font-size:13px}
+  .tb-speed input[type=range]{width:90px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}

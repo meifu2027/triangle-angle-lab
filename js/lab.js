@@ -109,8 +109,10 @@
   function stop() {
     state.playing = false;
     $("benchPlay").innerHTML = t("bench.btn.play");
-    document.getElementById("lab-bench").classList.remove("is-cruising", "is-panel-open");
-    refreshCruiseToggle();
+    const sec = document.getElementById("lab-bench");
+    sec.classList.remove("is-cruising");
+    if (autoCollapsed) { sec.classList.remove("panel-collapsed"); autoCollapsed = false; }
+    refreshPanelToggle();
   }
   function setT(v, limit = 0, adapt = true) {
     if (!limit && !Number.isFinite(v)) return;
@@ -355,12 +357,10 @@
   }
   function setSpeed(v) {
     state.speed = v;
-    const label = v.toFixed(1) + "×";
-    $("speedOut").textContent = label; $("speedOut2").textContent = label;
-    $("speedRange").value = String(v); $("speedRange2").value = String(v);
+    $("speedOut").textContent = v.toFixed(1) + "×";
+    $("speedRange").value = String(v);
   }
   $("speedRange").addEventListener("input", () => setSpeed(Number($("speedRange").value)));
-  $("speedRange2").addEventListener("input", () => setSpeed(Number($("speedRange2").value)));
 
   $("tForm").addEventListener("submit", (e) => {
     e.preventDefault();
@@ -395,20 +395,24 @@
     $("benchPlay").innerHTML = t("bench.btn.pause");
     const sec = document.getElementById("lab-bench");
     sec.classList.add("is-cruising");
-    sec.classList.remove("is-panel-open");
-    refreshCruiseToggle();
+    if (!sec.classList.contains("panel-collapsed")) {
+      sec.classList.add("panel-collapsed"); /* 巡游默认折叠参数，画面更大 */
+      autoCollapsed = true;
+    }
+    refreshPanelToggle();
   };
 
-  /* 巡游工具条：暂停 / 速度 / 折叠-展开参数面板 */
-  function refreshCruiseToggle() {
-    const open = document.getElementById("lab-bench").classList.contains("is-panel-open");
-    $("cruiseToggle").innerHTML = t(open ? "bench.cruise.collapse" : "bench.cruise.expand");
+  /* 顶栏「折叠/展开参数」：任何时刻可用；手动切换后暂停不再自动展开 */
+  let autoCollapsed = false;
+  function refreshPanelToggle() {
+    const collapsed = document.getElementById("lab-bench").classList.contains("panel-collapsed");
+    $("panelToggle").innerHTML = t(collapsed ? "bench.cruise.expand" : "bench.cruise.collapse");
   }
-  $("cruiseToggle").onclick = () => {
-    document.getElementById("lab-bench").classList.toggle("is-panel-open");
-    refreshCruiseToggle();
+  $("panelToggle").onclick = () => {
+    document.getElementById("lab-bench").classList.toggle("panel-collapsed");
+    autoCollapsed = false;
+    refreshPanelToggle();
   };
-  $("cruisePause").onclick = () => stop();
 
   bench.addEventListener("pointerdown", (e) => {
     stop();
@@ -499,6 +503,19 @@
          两端速度自然归零后折返，绝不瞬移跳回 */
       state.phase += (dt * 0.00028) * state.speed;
       setT(state.base / 2 + 8 * Math.max(state.base, state.height) * Math.sin(state.phase), 0, false);
+      /* 相机跟随：巡游中把 A 始终留在画面里，视野随其位置平滑缩放（指数趋近） */
+      const l = Math.min(0, state.t), r = Math.max(state.base, state.t);
+      const tCenter = l / 2 + r / 2;
+      const tScale = Math.min((bw - 130) / Math.max(2.6 * state.base, r - l), (bh * 0.47) / state.height);
+      const k = 1 - Math.exp(-dt * 0.008);
+      state.center += (tCenter - state.center) * k;
+      state.scale += (tScale - state.scale) * k;
+      /* 硬约束：高速巡游相机若滞后，直接平移把 A 拉回安全边距内 */
+      const m = 26;
+      const ax = (state.t - state.center) * state.scale + bw / 2;
+      if (ax > bw - m) state.center += (ax - (bw - m)) / state.scale;
+      else if (ax < m) state.center -= (m - ax) / state.scale;
+      drawBench();
     }
     if (state.drag && state.drag.kind === "a") {
       const edge = state.drag.px < 42 ? state.drag.px - 42 : state.drag.px > bw - 42 ? state.drag.px - (bw - 42) : 0;
@@ -538,7 +555,7 @@
   document.addEventListener("visibilitychange", () => { if (document.hidden) stop(); });
   document.addEventListener("i18n:change", () => {
     if (state.playing) $("benchPlay").innerHTML = t("bench.btn.pause");
-    refreshCruiseToggle();
+    refreshPanelToggle();
     update(); drawAll(); drawSolverPreview();
   });
 
@@ -549,6 +566,6 @@
     anglesAt, currentAngles, num, deg, drawGeometry, setup,
   };
 
-  resize(); update(); refreshCruiseToggle();
+  resize(); update(); refreshPanelToggle();
   requestAnimationFrame(frame);
 })();
