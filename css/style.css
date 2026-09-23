@@ -319,13 +319,16 @@ input[type=range]::-moz-range-thumb{
 .space-point{font-size:21px;color:var(--ink);letter-spacing:.02em}
 
 /* ---- 并排双视图实验室（§02 平面 × 角度空间） ---- */
-.sect-twin .lab{display:flex;flex-direction:column;gap:24px}
+.sect-twin .lab{display:flex;flex-direction:column;gap:0}
+.lab-main{margin-bottom:24px}
 .lab-toolbar{
-  position:sticky;top:10px;z-index:20;
   display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;
-  border:1px solid var(--line);border-radius:4px;background:var(--card);padding:10px 16px;
-  box-shadow:0 6px 22px rgba(33,29,22,.14);
+  border:1px solid var(--line);border-bottom:none;border-radius:4px 4px 0 0;
+  background:var(--card);padding:10px 16px;
+  transition:border-radius .4s ease;
 }
+/* 参数面板折叠收起后，工具栏恢复独立卡片的下缘 */
+.sect-twin.panel-collapsed .lab-toolbar{border-bottom:1px solid var(--line);border-radius:4px}
 .lab-toolbar .btn{padding:10px 14px}
 .tb-speed{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-soft)}
 .tb-speed input[type=range]{width:130px}
@@ -349,16 +352,16 @@ input[type=range]::-moz-range-thumb{
 .lab-stage.is-dark .stage-tag{color:#8d8471}
 .lab-stage.is-dark .stage-hint{background:rgba(29,25,18,.85);border-color:var(--night-line);color:#8d8471}
 .lab-stage.is-dark canvas:focus-visible{outline-color:var(--night-ink)}
-/* 参数面板平滑折叠：grid 行高 1fr→0fr + 内边距/外边距同步收拢，绝不瞬间出现/消失 */
+/* 参数面板平滑折叠：grid 行高 1fr→0fr + 内边距同步收拢，绝不瞬间出现/消失 */
 .panel-fold{
   display:grid;grid-template-rows:1fr;
-  transition:grid-template-rows .55s cubic-bezier(.4,0,.2,1),margin-top .55s cubic-bezier(.4,0,.2,1);
+  transition:grid-template-rows .55s cubic-bezier(.4,0,.2,1);
 }
 .panel-fold>.lab-panel{
-  min-height:0;overflow:hidden;
+  min-height:0;overflow:hidden;border-radius:0 0 4px 4px;
   transition:opacity .45s ease,padding .55s cubic-bezier(.4,0,.2,1),border-width .55s cubic-bezier(.4,0,.2,1);
 }
-.sect-twin.panel-collapsed .panel-fold{grid-template-rows:0fr;margin-top:-24px}
+.sect-twin.panel-collapsed .panel-fold{grid-template-rows:0fr}
 .sect-twin.panel-collapsed .panel-fold>.lab-panel{
   opacity:0;padding-top:0;padding-bottom:0;border-top-width:0;border-bottom-width:0;
 }
@@ -493,7 +496,7 @@ input[type=range]::-moz-range-thumb{
   .lab-twin{grid-template-columns:1fr}
   .lab-stage{min-height:420px}
   .sect-twin.panel-collapsed .lab-twin .lab-stage{min-height:70vh}
-  .lab-toolbar{top:6px;gap:10px;padding:8px 12px}
+  .lab-toolbar{gap:10px;padding:8px 12px}
   .tb-speed input[type=range]{width:100px}
   .hero-vertical{display:none}
 }
