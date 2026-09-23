@@ -94,18 +94,6 @@
   </div>
 
   <div class="lab reveal">
-    <div class="lab-toolbar" id="labToolbar">
-      <button class="btn btn-primary" id="benchPlay" data-i18n="bench.btn.play">&9654; 巡游</button>
-      <label class="tb-speed">
-        <span data-i18n="bench.speed">巡游速度</span>
-        <input type="range" id="speedRange" min="0.2" max="3" step="0.1" value="1" aria-label="speed">
-        <output class="en" id="speedOut">1.0&times;</output>
-      </label>
-      <button class="btn btn-ghost" id="benchReset" data-i18n="bench.btn.reset">&8634; 重置</button>
-      <button class="btn btn-ghost" id="spaceReset" data-i18n="space.btn.reset">&8634; 重置视角</button>
-      <button class="btn btn-ghost" id="panelToggle" type="button">&#8854; 折叠参数</button>
-    </div>
-
     <div class="lab-main">
       <div class="lab-twin">
         <div class="lab-stage">
@@ -119,6 +107,18 @@
           <div class="stage-hint" id="spaceHint" data-i18n="space.hint">拖动旋转视角 · 滚轮缩放 · 与实验台联动</div>
         </div>
       </div>
+    </div>
+
+    <div class="lab-toolbar" id="labToolbar">
+      <button class="btn btn-primary" id="benchPlay" data-i18n="bench.btn.play">&9654; 巡游</button>
+      <label class="tb-speed">
+        <span data-i18n="bench.speed">巡游速度</span>
+        <input type="range" id="speedRange" min="0.2" max="3" step="0.1" value="1" aria-label="speed">
+        <output class="en" id="speedOut">1.0&times;</output>
+      </label>
+      <button class="btn btn-ghost" id="benchReset" data-i18n="bench.btn.reset">&8634; 重置</button>
+      <button class="btn btn-ghost" id="spaceReset" data-i18n="space.btn.reset">&8634; 重置视角</button>
+      <button class="btn btn-ghost" id="panelToggle" type="button">&#8854; 折叠参数</button>
     </div>
 
     <div class="panel-fold" id="panelFold">
