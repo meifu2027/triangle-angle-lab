@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="滑动的顶点 · 三角形角度实验室 — 顶点 A 沿平行线移动时三个内角如何变化：平面实验台、角度空间曲线与三角形求解器。">
+<title>滑动的顶点 · 三角形角度实验室</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;700;900&family=Noto+Serif+SC:wght@400;600;900&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+
+<button class="lang-toggle en" id="langToggle" type="button" aria-label="Switch language">EN</button>
+
+<!-- ============ 英雄区 ============ -->
+<header class="hero">
+  <canvas id="heroCanvas" class="hero-canvas" aria-hidden="true"></canvas>
+  <div class="hero-vertical" aria-hidden="true">三内角ノ和ハ常ニ百八十度</div>
+
+  <div class="hero-inner">
+    <p class="hero-kicker"><span class="rule"></span>EUCLID · ELEMENTS I.32<span class="rule"></span></p>
+    <h1 class="hero-title" data-i18n="hero.title">滑动的<span class="hero-title-dot">·</span>顶点</h1>
+    <p class="hero-sub en">TRIANGLE ANGLE LAB</p>
+    <p class="hero-lede" data-i18n="hero.lede">
+      底边固定，高度固定，顶点 <i class="math">A</i> 沿着与底边平行的直线滑向无穷远。
+      三个内角此消彼长，总和恒为 <i class="math">180°</i>。
+      把 <span class="math">(&ang;A, &ang;B, &ang;C)</span> 看成三维空间里的一个点，
+      这场无声的重新分配，会在 <i class="math">x+y+z=180°</i> 的截面上画出一条安静的曲线。
+    </p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#lab-bench" data-i18n="hero.ctaBench">拖动顶点 ↓</a>
+      <a class="btn btn-ghost" href="#lab-solver" data-i18n="hero.ctaSolver">三角形求解器</a>
+    </div>
+  </div>
+
+  <div class="hero-seal" aria-hidden="true"><span>角</span></div>
+  <div class="hero-scroll en" aria-hidden="true">SCROLL<span class="hero-scroll-line"></span></div>
+</header>
+
+<!-- ============ § 01 一个问题，三个时刻 ============ -->
+<section class="section sect-answers" id="problem">
+  <div class="sect-head reveal">
+    <p class="sect-no en">§ 01</p>
+    <h2 class="sect-title" data-i18n="prob.title">一个问题，三个时刻</h2>
+    <p class="sect-desc" data-i18n="prob.desc">
+      底边 BC 长为 a，A 到 BC 的高为 h。A 沿平行线移动时，角度三元组 (&ang;A, &ang;B, &ang;C)
+      始终满足同一份约束：总和 180°。取 a = h = 1，先看三个代表性时刻。
+    </p>
+  </div>
+  <div class="answer-grid">
+    <article class="answer-card reveal">
+      <canvas class="answer-canvas" id="cardLeft" width="720" height="510"></canvas>
+      <div class="answer-body">
+        <p class="answer-tag en">t &rarr; &minus;&infin;</p>
+        <h3 data-i18n="prob.c1.title">走向左端无穷远</h3>
+        <p data-i18n="prob.c1.body">&ang;B 无限逼近 180°，其余两角趋近 0°。三角形退化成一条直线——这是曲线的起点。</p>
+      </div>
+      <p class="answer-area en">P &rarr; (0&deg;, 180&deg;, 0&deg;)</p>
+    </article>
+    <article class="answer-card answer-card-hot reveal">
+      <canvas class="answer-canvas" id="cardMid" width="720" height="510"></canvas>
+      <div class="answer-body">
+        <p class="answer-tag en">t = a / 2 · ISOSCELES</p>
+        <h3 data-i18n="prob.c2.title">等腰时刻</h3>
+        <p data-i18n="prob.c2.body">A 位于底边中点正上方，&ang;B = &ang;C。此刻 &ang;A 取到全程最大值 53.13°。</p>
+      </div>
+      <p class="answer-area en">P = (53.13&deg;, 63.43&deg;, 63.43&deg;)</p>
+    </article>
+    <article class="answer-card reveal">
+      <canvas class="answer-canvas" id="cardRight" width="720" height="510"></canvas>
+      <div class="answer-body">
+        <p class="answer-tag en">t &rarr; +&infin;</p>
+        <h3 data-i18n="prob.c3.title">走向右端无穷远</h3>
+        <p data-i18n="prob.c3.body">&ang;C 无限逼近 180°。曲线的终点与起点在单纯形的另一端遥遥相望。</p>
+      </div>
+      <p class="answer-area en">P &rarr; (0&deg;, 0&deg;, 180&deg;)</p>
+    </article>
+  </div>
+</section>
+
+<!-- ============ § 02 实验室：平行线实验台 ============ -->
+<section class="section sect-lab" id="lab-bench">
+  <div class="sect-head reveal">
+    <p class="sect-no en" data-i18n="lab1.no">§ 02 · 实验室</p>
+    <h2 class="sect-title" data-i18n="lab1.title">平行线实验台</h2>
+    <p class="sect-desc" data-i18n="lab1.desc">
+      拖动 A——或让它自己滑向无穷远。三个角的实时读数在右侧面板；底边与高可重新设定，
+      角度空间中的轨迹曲线会随之改变。
+    </p>
+  </div>
+
+  <div class="lab reveal">
+    <div class="lab-stage">
+      <canvas id="benchCanvas" tabindex="0"></canvas>
+      <div class="stage-hint" id="benchHint" data-i18n="bench.hint">拖动 A 沿平行线移动 · 拖向边缘可滑向无穷远 · 滚轮缩放</div>
+    </div>
+
+    <aside class="lab-panel">
+      <div class="panel-block">
+        <p class="panel-label" data-i18n="bench.panel.params">参数</p>
+        <label class="slider-row">
+          <span data-i18n="bench.base">底边 a</span>
+          <input type="range" id="baseRange" min="0.2" max="5" step="0.01" value="1" aria-label="base a">
+          <output class="en" id="baseOut">1.00</output>
+        </label>
+        <label class="slider-row">
+          <span data-i18n="bench.height">高 h</span>
+          <input type="range" id="heightRange" min="0.2" max="5" step="0.01" value="1" aria-label="height h">
+          <output class="en" id="heightOut">1.00</output>
+        </label>
+        <label class="slider-row">
+          <span data-i18n="bench.speed">巡游速度</span>
+          <input type="range" id="speedRange" min="0.2" max="3" step="0.1" value="1" aria-label="speed">
+          <output class="en" id="speedOut">1.0&times;</output>
+        </label>
+      </div>
+
+      <div class="panel-block">
+        <p class="panel-label" data-i18n="bench.panel.pos">位置 t</p>
+        <form class="t-row" id="tForm">
+          <input class="en" type="text" id="tInput" value="0.50" autocomplete="off"
+                 aria-label="coordinate t" spellcheck="false">
+          <button class="chip" type="button" id="tNegInf" data-i18n="bench.negInf">&minus;&infin;</button>
+          <button class="chip" type="button" id="tMid" data-i18n="bench.mid">中点</button>
+          <button class="chip" type="button" id="tPosInf" data-i18n="bench.posInf">+&infin;</button>
+        </form>
+        <label class="slider-row slider-row-solo">
+          <span class="en" aria-hidden="true">t</span>
+          <input type="range" id="navRange" min="-1000" max="1000" step="1" value="0" aria-label="position navigator">
+          <output class="en" id="tOut">0.50</output>
+        </label>
+        <p class="mode-note" id="tError" role="status"></p>
+      </div>
+
+      <div class="panel-block">
+        <p class="panel-label" data-i18n="bench.panel.measure">测量</p>
+        <div class="meter">
+          <div class="meter-row meter-row-angle">
+            <span class="angle-tag tag-a">&ang;A</span>
+            <div class="meter-bar"><div class="meter-fill fill-a" id="fillA"></div></div>
+            <output class="en meter-big c-a" id="mA">53.13&deg;</output>
+          </div>
+          <div class="meter-row meter-row-angle">
+            <span class="angle-tag tag-b">&ang;B</span>
+            <div class="meter-bar"><div class="meter-fill fill-b" id="fillB"></div></div>
+            <output class="en meter-big c-b" id="mB">63.43&deg;</output>
+          </div>
+          <div class="meter-row meter-row-angle">
+            <span class="angle-tag tag-c">&ang;C</span>
+            <div class="meter-bar"><div class="meter-fill fill-c" id="fillC"></div></div>
+            <output class="en meter-big c-c" id="mC">63.43&deg;</output>
+          </div>
+          <p class="mode-note" id="benchStatus">等腰三角形</p>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <label class="check-row">
+          <input type="checkbox" id="showAids" checked>
+          <span data-i18n="bench.aids">显示垂线与角弧</span>
+        </label>
+        <label class="check-row">
+          <input type="checkbox" id="autoFit" checked>
+          <span data-i18n="bench.autofit">自动取景</span>
+        </label>
+      </div>
+
+      <div class="panel-actions">
+        <button class="btn btn-primary" id="benchPlay" data-i18n="bench.btn.play">&9654; 巡游</button>
+        <button class="btn btn-ghost" id="benchReset" data-i18n="bench.btn.reset">&8634; 重置</button>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============ § 03 实验室：角度空间（暗色） ============ -->
+<section class="section sect-lab sect-dark" id="lab-space">
+  <div class="sect-head reveal">
+    <p class="sect-no en" data-i18n="lab2.no">§ 03 · 实验室</p>
+    <h2 class="sect-title" data-i18n="lab2.title">角度空间</h2>
+    <p class="sect-desc" data-i18n="lab2.desc">
+      以 &ang;A、&ang;B、&ang;C 为三根轴，每个三角形都是空间中的一点 P。
+      内角和把 P 压在 x+y+z = 180&deg; 的正三角形截面上；固定底边与高之后，
+      A 的全程滑动只留下一条开曲线——从 (0&deg;, 180&deg;, 0&deg;) 走向 (0&deg;, 0&deg;, 180&deg;)。
+      拖动画面旋转视角。
+    </p>
+  </div>
+
+  <div class="lab reveal">
+    <div class="lab-stage">
+      <canvas id="spaceCanvas" class="is-orbit" tabindex="0"></canvas>
+      <div class="stage-hint" id="spaceHint" data-i18n="space.hint">拖动旋转视角 · 滚轮缩放 · P 随上方实验台联动</div>
+    </div>
+
+    <aside class="lab-panel">
+      <div class="panel-block">
+        <p class="panel-label" data-i18n="space.panel.layers">图层</p>
+        <label class="check-row">
+          <input type="checkbox" id="showPlane" checked>
+          <span data-i18n="space.plane">约束平面 x+y+z = 180&deg;</span>
+        </label>
+        <label class="check-row">
+          <input type="checkbox" id="showCurve" checked>
+          <span data-i18n="space.curve">轨迹曲线（当前 a、h）</span>
+        </label>
+        <label class="check-row">
+          <input type="checkbox" id="showAxes" checked>
+          <span data-i18n="space.axes">三根坐标轴</span>
+        </label>
+        <label class="check-row">
+          <input type="checkbox" id="autoSpin" checked>
+          <span data-i18n="space.spin">缓慢自转</span>
+        </label>
+      </div>
+
+      <div class="panel-block">
+        <p class="panel-label" data-i18n="space.panel.measure">当前点</p>
+        <div class="meter">
+          <p class="space-point en" id="spacePoint">
+            P = (<span class="c-a">53.13&deg;</span>, <span class="c-b">63.43&deg;</span>, <span class="c-c">63.43&deg;</span>)
+          </p>
+          <div class="meter-row">
+            <span data-i18n="space.sum">内角和</span>
+            <div class="meter-bar"><div class="meter-fill" id="spaceSumFill" style="width:100%"></div></div>
+            <output class="en" id="spaceSum">180.000&deg;</output>
+          </div>
+        </div>
+        <p class="mode-note" data-i18n="space.note">曲线在两端的极限点即 § 01 的两个退化时刻；顶点位于中点上方时，P 恰在曲线的最「高」处。</p>
+      </div>
+
+      <div class="panel-actions">
+        <button class="btn btn-ghost" id="spaceReset" data-i18n="space.btn.reset">&8634; 重置视角</button>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============ § 04 实验室：三角形求解台 ============ -->
+<section class="section sect-lab" id="lab-solver">
+  <div class="sect-head reveal">
+    <p class="sect-no en" data-i18n="lab3.no">§ 04 · 实验室</p>
+    <h2 class="sect-title" data-i18n="lab3.title">三角形求解台</h2>
+    <p class="sect-desc" data-i18n="lab3.desc">
+      从七个量里勾选你已知的那几个——两角一边、三边、两边夹角……满足最低独立条件即可解出整个三角形：
+      三边、三高、面积与周长。条件冲突或不足会说明原因；存在两解时可切换查看。
+      求解结果同步到上方两个实验台。
+    </p>
+  </div>
+
+  <div class="lab reveal">
+    <div class="lab-stage lab-stage-solver">
+      <canvas id="solverCanvas" aria-label="solved triangle preview"></canvas>
+      <div class="stage-hint" id="solverHint" data-i18n="solver.hint">预览随求解结果更新</div>
+    </div>
+
+    <aside class="lab-panel lab-panel-solver">
+      <div class="panel-block">
+        <p class="panel-label" data-i18n="solver.panel.presets">快捷组合</p>
+        <div class="mode-group mode-group-solver" id="presetGroup">
+          <button class="mode-btn" data-preset="aas" data-i18n="solver.preset.aas">两角一边</button>
+          <button class="mode-btn" data-preset="aah" data-i18n="solver.preset.aah">两角一高</button>
+          <button class="mode-btn" data-preset="sss" data-i18n="solver.preset.sss">三边</button>
+          <button class="mode-btn" data-preset="sas" data-i18n="solver.preset.sas">两边夹角</button>
+          <button class="mode-btn" data-preset="ssa" data-i18n="solver.preset.ssa">两边一对角</button>
+          <button class="mode-btn" data-preset="ach" data-i18n="solver.preset.ach">底&middot;腰&middot;高</button>
+          <button class="mode-btn" data-preset="clear" data-i18n="solver.preset.clear">清空</button>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <p class="panel-label" data-i18n="solver.panel.known">已知量</p>
+        <div class="known-grid" id="knownGrid"></div>
+        <p class="mode-note" data-i18n="solver.knownNote">勾选后输入数值或拖动滑块，未勾选的量自动计算。h 指定为 A 到 BC 的高。</p>
+      </div>
+
+      <div class="panel-block">
+        <p class="panel-label" data-i18n="solver.panel.result">求解结果</p>
+        <p class="solve-message" id="solveMessage" role="status"></p>
+        <div class="solution-picker" id="solutionPicker"></div>
+        <div class="results-grid" id="resultsGrid"></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============ § 05 纸上的推导 ============ -->
+<section class="section sect-formulas" id="formulas">
+  <div class="sect-head reveal">
+    <p class="sect-no en" data-i18n="lab4.no">§ 05</p>
+    <h2 class="sect-title" data-i18n="lab4.title">纸上的推导</h2>
+    <p class="sect-desc" data-i18n="lab4.desc">以上所有图形背后的五段推导——从坐标化到正弦定理与 Heron 公式。</p>
+  </div>
+  <div class="formula-grid">
+    <article class="formula-card reveal">
+      <canvas class="formula-canvas" id="fxCartesian" width="600" height="400"></canvas>
+      <div class="formula-body">
+        <p class="answer-tag en">01 · COORDINATES</p>
+        <h3 data-i18n="fx1.title">坐标化</h3>
+        <p class="formula-math en">B(0,0),&ensp;C(a,0),&ensp;A(t,h)</p>
+        <p data-i18n="fx1.body">把底边放到 x 轴上：B 在原点，C 在 (a, 0)，平行线就是 y = h。底边与高固定后，唯一的自由度是横坐标 t——整场实验都在这一个参数上进行。</p>
+      </div>
+    </article>
+    <article class="formula-card reveal">
+      <canvas class="formula-canvas" id="fxAngles" width="600" height="400"></canvas>
+      <div class="formula-body">
+        <p class="answer-tag en">02 · ARCTANGENT</p>
+        <h3 data-i18n="fx2.title">三个角</h3>
+        <p class="formula-math en">&ang;B = atan2(h, t)<br>&ang;C = atan2(h, a&minus;t)<br>&ang;A = 180&deg; &minus; &ang;B &minus; &ang;C</p>
+        <p data-i18n="fx2.body">底角就是对边与邻边之比：在 B 处看 A，横距是 t；在 C 处看 A，横距是 a&minus;t。用 atan2 而非 tan，t 越出 [0, a] 时的分支会自动接对。</p>
+      </div>
+    </article>
+    <article class="formula-card reveal">
+      <canvas class="formula-canvas" id="fxSimplex" width="600" height="400"></canvas>
+      <div class="formula-body">
+        <p class="answer-tag en">03 · THE 2-SIMPLEX</p>
+        <h3 data-i18n="fx3.title">角度空间</h3>
+        <p class="formula-math en">x + y + z = 180&deg;,&ensp;x, y, z &ge; 0</p>
+        <p data-i18n="fx3.body">内角和把 P 压在第一卦限里的正三角形截面上。t 从 &minus;&infin; 扫到 +&infin;，P 沿一条开曲线从 (0&deg;,180&deg;,0&deg;) 走到 (0&deg;,0&deg;,180&deg;)；t = a/2 时 &ang;B = &ang;C，&ang;A 最大。</p>
+      </div>
+    </article>
+    <article class="formula-card reveal">
+      <canvas class="formula-canvas" id="fxSine" width="600" height="400"></canvas>
+      <div class="formula-body">
+        <p class="answer-tag en">04 · LAW OF SINES</p>
+        <h3 data-i18n="fx4.title">正弦定理</h3>
+        <p class="formula-math en">a / sin&ang;A = b / sin&ang;B = c / sin&ang;C = 2R</p>
+        <p data-i18n="fx4.body">两角加任一边（或高），第三角与全套边长立即可解。已知两边与一对角时可能交出两个三角形——几何上是射线与圆的两个交点，这就是「两解」的来历。</p>
+      </div>
+    </article>
+    <article class="formula-card reveal">
+      <canvas class="formula-canvas" id="fxHeron" width="600" height="400"></canvas>
+      <div class="formula-body">
+        <p class="answer-tag en">05 · COSINES &amp; AREA</p>
+        <h3 data-i18n="fx5.title">余弦与面积</h3>
+        <p class="formula-math en">a&sup2; = b&sup2; + c&sup2; &minus; 2bc&middot;cos&ang;A<br>S = &radic;[s(s&minus;a)(s&minus;b)(s&minus;c)],&ensp;s = (a+b+c)/2</p>
+        <p data-i18n="fx5.body">三边用余弦定理定角、Heron 公式定面积；两边夹一角则反过来由余弦定理补出第三边。三条高由面积反推：h&#7526; = 2S/b，h&#8338; = 2S/c。</p>
+      </div>
+    </article>
+    <article class="formula-card formula-card-note reveal">
+      <div class="formula-body">
+        <p class="answer-tag en">WHICH TRIPLETS SUFFICE?</p>
+        <h3 data-i18n="fx6.title">哪些组合够用</h3>
+        <p data-i18n="fx6.body">
+          至少三个独立量才能定下一个三角形：三边（SSS）；两边夹角（SAS）；两角加任一边或高（AAS / AAH）；
+          两边一对角（SSA）可能有零、一或两个解。只有三个角（AAA）定型不定量；
+          而像「B、c、h」这样的组合彼此不独立，永远差一个自由度。
+        </p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<footer class="footer">
+  <p class="footer-mark en">TRIANGLE &middot; &Sigma; = 180&deg; &middot; I.32</p>
+  <p class="footer-note" data-i18n="footer.note">交互演示 · 全部计算在浏览器本地完成 · 仅供数学演示</p>
+  <p class="footer-copy">
+    <span class="en">&copy; 2026 meifu2027</span>
+    <span class="footer-dot">&middot;</span>
+    <a class="footer-link" href="https://github.com/meifu2027/triangle-angle-lab" target="_blank" rel="noopener noreferrer" data-i18n="footer.repo">在 GitHub 查看源码</a>
+  </p>
+</footer>
+
+<script src="js/i18n.js"></script>
+<script src="js/solver.js"></script>
+<script src="js/lab.js"></script>
+<script src="js/solver-ui.js"></script>
+<script src="js/formulas.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
