@@ -82,37 +82,57 @@
   </div>
 </section>
 
-<!-- ============ § 02 实验室：平行线实验台 ============ -->
-<section class="section sect-lab" id="lab-bench">
+<!-- ============ § 02 实验室：平行实验台 × 角度空间（并排联动） ============ -->
+<section class="section sect-lab sect-twin" id="lab-bench">
   <div class="sect-head reveal">
     <p class="sect-no en" data-i18n="lab1.no">§ 02 · 实验室</p>
-    <h2 class="sect-title" data-i18n="lab1.title">平行线实验台</h2>
+    <h2 class="sect-title" data-i18n="lab1.title">平行实验台 · 角度空间</h2>
     <p class="sect-desc" data-i18n="lab1.desc">
-      拖动 A——或让它自己滑向无穷远。三个角的实时读数在右侧面板；底边与高可重新设定，
-      角度空间中的轨迹曲线会随之改变。
+      两块画布共享同一份三角形状态：拖动 A——或点「巡游」让它沿平行线往返滑行；
+      底边与高可拖动滑块或直接输入任意正数。下方面板给出三内角实时读数、位置与图层控制。
     </p>
   </div>
 
   <div class="lab reveal">
-    <div class="lab-stage">
-      <canvas id="benchCanvas" tabindex="0"></canvas>
-      <div class="stage-hint" id="benchHint" data-i18n="bench.hint">拖动 A 沿平行线移动 · 拖向边缘可滑向无穷远 · 滚轮缩放</div>
+    <div class="lab-main">
+      <div class="lab-twin">
+        <div class="lab-stage">
+          <canvas id="benchCanvas" tabindex="0"></canvas>
+          <div class="stage-tag" data-i18n="lab1.tag">Ⅰ · 平行线实验台</div>
+          <div class="stage-hint" id="benchHint" data-i18n="bench.hint">拖动 A 沿平行线移动 · 拖向边缘可滑向无穷远 · 滚轮缩放</div>
+        </div>
+        <div class="lab-stage is-dark">
+          <canvas id="spaceCanvas" class="is-orbit" tabindex="0"></canvas>
+          <div class="stage-tag" data-i18n="lab2.tag">Ⅱ · 角度空间</div>
+          <div class="stage-hint" id="spaceHint" data-i18n="space.hint">拖动旋转视角 · 滚轮缩放 · 与实验台联动</div>
+        </div>
+      </div>
+
+      <div class="cruise-bar" id="cruiseBar">
+        <button class="btn btn-primary" id="cruisePause" type="button" data-i18n="bench.btn.pause">&#9208; 暂停</button>
+        <label class="cruise-speed">
+          <span data-i18n="bench.speed">巡游速度</span>
+          <input type="range" id="speedRange2" min="0.2" max="3" step="0.1" value="1" aria-label="speed">
+          <output class="en" id="speedOut2">1.0&times;</output>
+        </label>
+        <button class="btn btn-ghost" id="cruiseToggle" type="button">&#8854; 展开参数</button>
+      </div>
     </div>
 
-    <aside class="lab-panel">
+    <aside class="lab-panel lab-panel-twin" id="labPanel">
       <div class="panel-block">
         <p class="panel-label" data-i18n="bench.panel.params">参数</p>
-        <label class="slider-row">
+        <label class="param-row">
           <span data-i18n="bench.base">底边 a</span>
-          <input type="range" id="baseRange" min="0.2" max="5" step="0.01" value="1" aria-label="base a">
-          <output class="en" id="baseOut">1.00</output>
+          <input type="range" id="baseRange" min="0.2" max="10" step="0.01" value="1" aria-label="base a">
+          <input class="en" type="number" id="baseInput" min="0.01" step="any" value="1" aria-label="base a value">
         </label>
-        <label class="slider-row">
+        <label class="param-row">
           <span data-i18n="bench.height">高 h</span>
-          <input type="range" id="heightRange" min="0.2" max="5" step="0.01" value="1" aria-label="height h">
-          <output class="en" id="heightOut">1.00</output>
+          <input type="range" id="heightRange" min="0.2" max="10" step="0.01" value="1" aria-label="height h">
+          <input class="en" type="number" id="heightInput" min="0.01" step="any" value="1" aria-label="height h value">
         </label>
-        <label class="slider-row">
+        <label class="param-row">
           <span data-i18n="bench.speed">巡游速度</span>
           <input type="range" id="speedRange" min="0.2" max="3" step="0.1" value="1" aria-label="speed">
           <output class="en" id="speedOut">1.0&times;</output>
@@ -159,62 +179,33 @@
       </div>
 
       <div class="panel-block">
-        <label class="check-row">
-          <input type="checkbox" id="showAids" checked>
-          <span data-i18n="bench.aids">显示垂线与角弧</span>
-        </label>
-        <label class="check-row">
-          <input type="checkbox" id="autoFit" checked>
-          <span data-i18n="bench.autofit">自动取景</span>
-        </label>
-      </div>
-
-      <div class="panel-actions">
-        <button class="btn btn-primary" id="benchPlay" data-i18n="bench.btn.play">&9654; 巡游</button>
-        <button class="btn btn-ghost" id="benchReset" data-i18n="bench.btn.reset">&8634; 重置</button>
-      </div>
-    </aside>
-  </div>
-</section>
-
-<!-- ============ § 03 实验室：角度空间（暗色） ============ -->
-<section class="section sect-lab sect-dark" id="lab-space">
-  <div class="sect-head reveal">
-    <p class="sect-no en" data-i18n="lab2.no">§ 03 · 实验室</p>
-    <h2 class="sect-title" data-i18n="lab2.title">角度空间</h2>
-    <p class="sect-desc" data-i18n="lab2.desc">
-      以 &ang;A、&ang;B、&ang;C 为三根轴，每个三角形都是空间中的一点 P。
-      内角和把 P 压在 x+y+z = 180&deg; 的正三角形截面上；固定底边与高之后，
-      A 的全程滑动只留下一条开曲线——从 (0&deg;, 180&deg;, 0&deg;) 走向 (0&deg;, 0&deg;, 180&deg;)。
-      拖动画面旋转视角。
-    </p>
-  </div>
-
-  <div class="lab reveal">
-    <div class="lab-stage">
-      <canvas id="spaceCanvas" class="is-orbit" tabindex="0"></canvas>
-      <div class="stage-hint" id="spaceHint" data-i18n="space.hint">拖动旋转视角 · 滚轮缩放 · P 随上方实验台联动</div>
-    </div>
-
-    <aside class="lab-panel">
-      <div class="panel-block">
-        <p class="panel-label" data-i18n="space.panel.layers">图层</p>
-        <label class="check-row">
-          <input type="checkbox" id="showPlane" checked>
-          <span data-i18n="space.plane">约束平面 x+y+z = 180&deg;</span>
-        </label>
-        <label class="check-row">
-          <input type="checkbox" id="showCurve" checked>
-          <span data-i18n="space.curve">轨迹曲线（当前 a、h）</span>
-        </label>
-        <label class="check-row">
-          <input type="checkbox" id="showAxes" checked>
-          <span data-i18n="space.axes">三根坐标轴</span>
-        </label>
-        <label class="check-row">
-          <input type="checkbox" id="autoSpin" checked>
-          <span data-i18n="space.spin">缓慢自转</span>
-        </label>
+        <p class="panel-label" data-i18n="bench.panel.view">显示与图层</p>
+        <div class="check-grid">
+          <label class="check-row">
+            <input type="checkbox" id="showAids" checked>
+            <span data-i18n="bench.aids">显示垂线与角弧</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="autoFit" checked>
+            <span data-i18n="bench.autofit">自动取景</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="showPlane" checked>
+            <span data-i18n="space.plane">约束平面 x+y+z = 180&deg;</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="showCurve" checked>
+            <span data-i18n="space.curve">轨迹曲线（当前 a、h）</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="showAxes" checked>
+            <span data-i18n="space.axes">三根坐标轴</span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" id="autoSpin" checked>
+            <span data-i18n="space.spin">缓慢自转</span>
+          </label>
+        </div>
       </div>
 
       <div class="panel-block">
@@ -233,6 +224,8 @@
       </div>
 
       <div class="panel-actions">
+        <button class="btn btn-primary" id="benchPlay" data-i18n="bench.btn.play">&9654; 巡游</button>
+        <button class="btn btn-ghost" id="benchReset" data-i18n="bench.btn.reset">&8634; 重置</button>
         <button class="btn btn-ghost" id="spaceReset" data-i18n="space.btn.reset">&8634; 重置视角</button>
       </div>
     </aside>
@@ -254,7 +247,7 @@
   <div class="lab reveal">
     <div class="lab-stage lab-stage-solver">
       <canvas id="solverCanvas" aria-label="solved triangle preview"></canvas>
-      <div class="stage-hint" id="solverHint" data-i18n="solver.hint">预览随求解结果更新</div>
+      <div class="stage-hint" id="solverHint" data-i18n="solver.hint">拖动顶点 A · 勾选的已知量实时回写</div>
     </div>
 
     <aside class="lab-panel lab-panel-solver">

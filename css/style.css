@@ -316,7 +316,49 @@ input[type=range]::-moz-range-thumb{
 .sect-dark .c-b{color:#8fb3cc}
 .sect-dark .c-c{color:#d3ac5e}
 .sect-dark .stage-hint{background:rgba(29,25,18,.85);border-color:var(--night-line);color:#8d8471}
-.space-point{font-size:21px;color:var(--night-ink);letter-spacing:.02em}
+.space-point{font-size:21px;color:var(--ink);letter-spacing:.02em}
+
+/* ---- 并排双视图实验室（§02 平面 × 角度空间） ---- */
+.sect-twin .lab{display:flex;flex-direction:column;gap:24px}
+.lab-twin{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.lab-stage{transition:min-height .5s ease}
+.sect-twin.is-cruising:not(.is-panel-open) .lab-twin .lab-stage{min-height:min(74vh,820px)}
+.sect-twin.is-cruising:not(.is-panel-open) .lab-panel-twin{display:none}
+.stage-tag{
+  position:absolute;top:14px;left:16px;z-index:2;pointer-events:none;
+  font-family:var(--serif-en);font-size:12px;letter-spacing:.26em;color:var(--ink-faint);
+}
+.lab-stage.is-dark{
+  background:
+    linear-gradient(rgba(233,224,203,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(233,224,203,.045) 1px,transparent 1px),
+    var(--night-soft);
+  background-size:36px 36px,36px 36px,auto;
+  border-color:var(--night-line);
+  box-shadow:inset 0 0 80px rgba(0,0,0,.5);
+}
+.lab-stage.is-dark .stage-tag{color:#8d8471}
+.lab-stage.is-dark .stage-hint{background:rgba(29,25,18,.85);border-color:var(--night-line);color:#8d8471}
+.lab-stage.is-dark canvas:focus-visible{outline-color:var(--night-ink)}
+.lab-panel-twin{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:26px 34px}
+.lab-panel-twin .panel-actions{grid-column:1/-1;margin-top:0}
+.check-grid{display:flex;flex-direction:column;gap:10px}
+.param-row{display:grid;grid-template-columns:52px 1fr 72px;align-items:center;gap:10px;font-size:14px;color:var(--ink-soft);margin-bottom:14px}
+.param-row output,.param-row input[type=number]{
+  width:100%;padding:7px 9px;font-family:var(--serif-en);font-size:14px;color:var(--ink);
+  background:var(--paper-deep);border:1px solid var(--line);border-radius:2px;text-align:right;
+}
+.param-row input[type=number]:focus{border-color:var(--vermil);outline:none}
+.cruise-bar{
+  display:none;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;
+  margin-top:24px;border:1px solid var(--line);border-radius:4px;background:var(--card);padding:12px 18px;
+}
+.sect-twin.is-cruising .cruise-bar{display:flex}
+.cruise-speed{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--ink-soft)}
+.cruise-speed input[type=range]{width:150px}
+.cruise-speed output{font-family:var(--serif-en);font-size:14px;color:var(--ink);min-width:44px;text-align:right}
+#solverCanvas{cursor:grab}
+#solverCanvas.is-grabbing{cursor:grabbing}
 
 /* ---- § 04 求解台 ---- */
 .mode-group{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -414,7 +456,9 @@ input[type=range]::-moz-range-thumb{
 /* ============ responsive ============ */
 @media (max-width:980px){
   .sect-lab .lab{grid-template-columns:1fr}
+  .lab-twin{grid-template-columns:1fr}
   .lab-stage{min-height:420px}
+  .sect-twin.is-cruising:not(.is-panel-open) .lab-twin .lab-stage{min-height:70vh}
   .hero-vertical{display:none}
 }
 @media (max-width:560px){
@@ -426,6 +470,8 @@ input[type=range]::-moz-range-thumb{
   .meter-row-angle{grid-template-columns:30px 1fr 84px}
   .meter-big{font-size:20px}
   .lab-panel{padding:22px 18px}
+  .param-row{grid-template-columns:48px 1fr 64px}
+  .cruise-speed input[type=range]{width:110px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}

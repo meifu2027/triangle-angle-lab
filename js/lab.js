@@ -26,6 +26,8 @@
     view: { yaw: 0.75, pitch: 0.52, zoom: 1 },
     drag: null, spin: null, last: 0,
   };
+  /* §04 预览独立取景：不继承实验台的平移/缩放，也不随巡游动画逐帧重绘 */
+  const solverView = { center: 0.25, scale: 140 };
 
   /* ---------- 画布与工具 ---------- */
   const bench = $("benchCanvas"), bctx = bench.getContext("2d");
@@ -53,6 +55,15 @@
     ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, Math.PI * 2);
     ctx.fillStyle = fill; ctx.fill();
     if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke(); }
+  }
+  /* 带纸底的小标签：垫一层底色，避免与虚线、角弧等背景元素文字重叠 */
+  function chipText(ctx, label, x, y, color, size, align, font) {
+    ctx.font = size + "px " + (font || '"EB Garamond",Georgia,serif');
+    const wpx = ctx.measureText(label).width;
+    const left = align === "center" ? x - wpx / 2 : align === "right" ? x - wpx : x;
+    ctx.fillStyle = "rgba(247,241,224,.92)";
+    ctx.fillRect(left - 5, y - size * 0.8, wpx + 10, size * 1.06);
+    text(ctx, label, x, y, color, size, align, font);
   }
   function arc(ctx, p, p1, p2, r, color) {
     const a = Math.atan2(p1[1] - p[1], p1[0] - p[0]), b = Math.atan2(p2[1] - p[1], p2[0] - p[0]);
@@ -89,9 +100,17 @@
     state.center = l / 2 + r / 2;
     state.scale = Math.min((bw - 130) / Math.max(2.6 * state.base, r - l), (bh * 0.47) / state.height);
   }
+  function fitSolver() {
+    if (!(vw > 0) || !(vh > 0) || !(state.height > 0)) return;
+    const l = Math.min(0, state.t), r = Math.max(state.base, state.t);
+    solverView.center = l / 2 + r / 2;
+    solverView.scale = Math.min((vw - 110) / Math.max(2.4 * state.base, r - l, 1), (vh * 0.44) / state.height);
+  }
   function stop() {
     state.playing = false;
     $("benchPlay").innerHTML = t("bench.btn.play");
+    document.getElementById("lab-bench").classList.remove("is-cruising", "is-panel-open");
+    refreshCruiseToggle();
   }
   function setT(v, limit = 0, adapt = true) {
     if (!limit && !Number.isFinite(v)) return;
@@ -103,21 +122,23 @@
   }
 
   /* ---------- §02 平面视图（也用于 §04 预览） ---------- */
-  /* 坐标映射必须基于「当前绘制的目标画布」尺寸，两个画布各自传入 */
-  function makeXY(w, h) {
-    return (x, y) => [(x - state.center) * state.scale + w / 2, h * 0.76 - y * state.scale];
+  /* 坐标映射必须基于「当前绘制的目标画布」尺寸；view 缺省时用实验台取景 */
+  function makeXY(w, h, view) {
+    const c = view ? view.center : state.center, s = view ? view.scale : state.scale;
+    return (x, y) => [(x - c) * s + w / 2, h * 0.76 - y * s];
   }
-  function drawGeometry(ctx, w, h) {
+  function drawGeometry(ctx, w, h, view) {
     ctx.clearRect(0, 0, w, h);
-    const xy = makeXY(w, h);
-    const aid = state.scale * Math.min(state.base, state.height) > 25 && $("showAids").checked;
+    const xy = makeXY(w, h, view);
+    const vScale = view ? view.scale : state.scale;
+    const aid = vScale * Math.min(state.base, state.height) > 25 && $("showAids").checked;
     const B = xy(0, 0), Cp = xy(state.base, 0), A = xy(state.t, state.height), F = xy(state.t, 0);
     const top = xy(0, state.height)[1];
 
     /* 基准线与平行线 */
     line(ctx, [[0, B[1]], [w, B[1]]], "#cbbfa4");
     line(ctx, [[0, top], [w, top]], "#5b7d94", 1.3, [6, 6]);
-    text(ctx, t("bench.canvas.parallel", { h: num(state.height) }), 18, Math.max(25, top - 14), "#5b7d94", 12, "left", cn());
+    chipText(ctx, t("bench.canvas.parallel", { h: num(state.height) }), 18, Math.max(25, top - 14), "#5b7d94", 12, "left", cn());
     text(ctx, "←", 8, top + 4, "#5b7d94", 12);
     text(ctx, "→", w - 19, top + 4, "#5b7d94", 12);
 
@@ -133,8 +154,8 @@
       if (aid) {
         line(ctx, [A, F], "#9a917c", 1, [4, 4]);
         line(ctx, [[F[0] + 8, F[1]], [F[0] + 8, F[1] - 8], [F[0], F[1] - 8]], "#a9a08a");
-        text(ctx, t("bench.canvas.hLabel", { v: num(state.height) }), F[0] + 11, (A[1] + F[1]) / 2, INK_FAINT, 12);
-        const rr = Math.min(31, state.scale * Math.min(state.base, state.height) * 0.2);
+        chipText(ctx, t("bench.canvas.hLabel", { v: num(state.height) }), F[0] + 11, (A[1] + F[1]) / 2, INK_FAINT, 12);
+        const rr = Math.min(31, vScale * Math.min(state.base, state.height) * 0.2);
         arc(ctx, A, B, Cp, rr, C_A);
         arc(ctx, B, A, Cp, Math.max(16, rr * 0.9), C_B);
         arc(ctx, Cp, B, A, Math.max(16, rr * 0.9), C_C);
@@ -142,19 +163,19 @@
       if (A[0] > -20 && A[0] < w + 20) {
         dot(ctx, A, 15, "rgba(181,55,28,.09)");
         dot(ctx, A, 7, C_A, "#f4efe3");
-        text(ctx, "A", A[0] + 14, A[1] - 10, C_A, 17);
-        text(ctx, "(" + num(state.t) + ", " + num(state.height) + ")", A[0], A[1] - 26, C_A, 12, "center");
+        chipText(ctx, "A", A[0] + 14, A[1] - 10, C_A, 17);
+        chipText(ctx, "(" + num(state.t) + ", " + num(state.height) + ")", A[0], A[1] - 26, C_A, 12, "center");
       } else {
         const side = A[0] < 0 ? 18 : w - 18;
         dot(ctx, [side, top], 7, C_A);
-        text(ctx, t(A[0] < 0 ? "bench.canvas.offscreenL" : "bench.canvas.offscreenR"), side, top - 16, C_A, 12, A[0] < 0 ? "left" : "right", cn());
+        chipText(ctx, t(A[0] < 0 ? "bench.canvas.offscreenL" : "bench.canvas.offscreenR"), side, top - 16, C_A, 12, A[0] < 0 ? "left" : "right", cn());
       }
     }
 
     line(ctx, [B, Cp], INK, 3);
     dot(ctx, B, 4.5, C_B, "#f4efe3");
     dot(ctx, Cp, 4.5, C_C, "#f4efe3");
-    if (state.scale * state.base > 55) {
+    if (vScale * state.base > 55) {
       text(ctx, "B (0, 0)", B[0] - 9, B[1] + 24, C_B, 13, "right");
       text(ctx, "C (" + num(state.base) + ", 0)", Cp[0] + 9, Cp[1] + 24, C_C, 13);
       text(ctx, "a = " + num(state.base), (B[0] + Cp[0]) / 2, B[1] + 24, INK_SOFT, 12, "center");
@@ -250,11 +271,13 @@
       text(vctx, t("solver.canvas.wait"), vw / 2, vh / 2, INK_FAINT, 17, "center", cn());
       return;
     }
-    drawGeometry(vctx, vw, vh);
+    drawGeometry(vctx, vw, vh, solverView);
   }
 
+  /* 实验台两视图；§04 预览只在求解结果变化/拖 A/尺寸与语言变化时单独重绘，
+     保证它默认静态，不随巡游滑动，也不继承实验台的平移缩放 */
   function drawAll() {
-    drawBench(); drawSpace(); drawSolverPreview();
+    drawBench(); drawSpace();
   }
 
   /* ---------- 面板刷新 ---------- */
@@ -296,26 +319,48 @@
     return [e.clientX - r.left, e.clientY - r.top];
   };
 
-  $("baseRange").addEventListener("input", () => {
-    stop();
+  /* 底边与高：滑块拖动 + 数字手输，任意正数（滑块上限随输入值扩展） */
+  function syncParam(which) {
+    const range = $(which + "Range"), input = $(which + "Input");
+    if (state[which] > Number(range.max)) range.max = String(state[which] * 2);
+    range.value = String(state[which]);
+    input.value = String(Number(state[which].toFixed(6)));
+  }
+  function applyBase(v) {
     const ratio = state.limit ? 0 : state.t / state.base;
-    state.base = Number($("baseRange").value);
-    state.limit = 0;
-    state.t = ratio * state.base; /* 保持相对位置 */
-    $("baseOut").textContent = state.base.toFixed(2);
+    state.base = v; state.limit = 0;
+    state.t = ratio * v; /* 保持相对位置 */
+    syncParam("base");
     if ($("autoFit").checked) fit();
     update(); drawAll();
-  });
-  $("heightRange").addEventListener("input", () => {
-    stop(); state.height = Number($("heightRange").value);
-    $("heightOut").textContent = state.height.toFixed(2);
+  }
+  function applyHeight(v) {
+    state.height = v;
+    syncParam("height");
     if ($("autoFit").checked) fit();
     update(); drawAll();
-  });
-  $("speedRange").addEventListener("input", () => {
-    state.speed = Number($("speedRange").value);
-    $("speedOut").textContent = state.speed.toFixed(1) + "×";
-  });
+  }
+  $("baseRange").addEventListener("input", () => { stop(); applyBase(Number($("baseRange").value)); });
+  $("heightRange").addEventListener("input", () => { stop(); applyHeight(Number($("heightRange").value)); });
+  for (const which of ["base", "height"]) {
+    $(which + "Input").addEventListener("change", () => {
+      const v = Number($(which + "Input").value);
+      if (!Number.isFinite(v) || v <= 0) { /* 非法输入回滚为当前值 */
+        $(which + "Input").value = String(Number(state[which].toFixed(6)));
+        return;
+      }
+      stop();
+      which === "base" ? applyBase(v) : applyHeight(v);
+    });
+  }
+  function setSpeed(v) {
+    state.speed = v;
+    const label = v.toFixed(1) + "×";
+    $("speedOut").textContent = label; $("speedOut2").textContent = label;
+    $("speedRange").value = String(v); $("speedRange2").value = String(v);
+  }
+  $("speedRange").addEventListener("input", () => setSpeed(Number($("speedRange").value)));
+  $("speedRange2").addEventListener("input", () => setSpeed(Number($("speedRange2").value)));
 
   $("tForm").addEventListener("submit", (e) => {
     e.preventDefault();
@@ -336,17 +381,34 @@
   $("tMid").onclick = () => { stop(); setT(state.base / 2); };
   $("benchReset").onclick = () => {
     stop(); state.base = 1; state.height = 1;
-    $("baseRange").value = "1"; $("heightRange").value = "1";
-    $("baseOut").textContent = "1.00"; $("heightOut").textContent = "1.00";
+    $("baseRange").max = "10"; $("heightRange").max = "10";
+    syncParam("base"); syncParam("height");
     $("tError").textContent = "";
     setT(state.base / 2);
   };
   $("benchPlay").onclick = () => {
     if (state.playing) { stop(); return; }
-    state.phase = Math.atan(((state.limit ? state.base / 2 : state.t) - state.base / 2) / Math.max(state.base, state.height));
+    const M = 8 * Math.max(state.base, state.height);
+    /* 从当前位置映射到正弦摆的相位（asin 主值），从此平滑续摆 */
+    state.phase = Math.asin(Math.max(-1, Math.min(1, ((state.limit ? state.base / 2 : state.t) - state.base / 2) / M)));
     state.playing = true; state.limit = 0;
     $("benchPlay").innerHTML = t("bench.btn.pause");
+    const sec = document.getElementById("lab-bench");
+    sec.classList.add("is-cruising");
+    sec.classList.remove("is-panel-open");
+    refreshCruiseToggle();
   };
+
+  /* 巡游工具条：暂停 / 速度 / 折叠-展开参数面板 */
+  function refreshCruiseToggle() {
+    const open = document.getElementById("lab-bench").classList.contains("is-panel-open");
+    $("cruiseToggle").innerHTML = t(open ? "bench.cruise.collapse" : "bench.cruise.expand");
+  }
+  $("cruiseToggle").onclick = () => {
+    document.getElementById("lab-bench").classList.toggle("is-panel-open");
+    refreshCruiseToggle();
+  };
+  $("cruisePause").onclick = () => stop();
 
   bench.addEventListener("pointerdown", (e) => {
     stop();
@@ -388,7 +450,7 @@
   bench.addEventListener("wheel", (e) => {
     e.preventDefault();
     state.scale = Math.max(1e-306, Math.min((bh * 0.65) / state.height, state.scale * Math.exp(-e.deltaY * 0.001)));
-    drawBench(); drawSolverPreview();
+    drawBench();
   }, { passive: false });
   bench.addEventListener("keydown", (e) => {
     if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
@@ -429,13 +491,14 @@
     drawSpace();
   });
 
-  /* ---------- 帧循环：巡游动画 / 拖到边缘滑向无穷 / 自转 ---------- */
+  /* ---------- 帧循环：巡游往返钟摆 / 拖到边缘滑向无穷 / 自转 ---------- */
   function frame(now) {
     const dt = Math.min(50, now - state.last); state.last = now;
     if (state.playing) {
-      state.phase += (dt * 0.00019) * state.speed;
-      if (state.phase >= Math.PI / 2 - 0.006) state.phase = -Math.PI / 2 + 0.006;
-      setT(state.base / 2 + Math.max(state.base, state.height) * Math.tan(state.phase), 0, false);
+      /* 位置按正弦往返：t 在中点 ±8·max(a,h) 之间平滑摆动，
+         两端速度自然归零后折返，绝不瞬移跳回 */
+      state.phase += (dt * 0.00028) * state.speed;
+      setT(state.base / 2 + 8 * Math.max(state.base, state.height) * Math.sin(state.phase), 0, false);
     }
     if (state.drag && state.drag.kind === "a") {
       const edge = state.drag.px < 42 ? state.drag.px - 42 : state.drag.px > bw - 42 ? state.drag.px - (bw - 42) : 0;
@@ -459,22 +522,33 @@
     [sw, sh] = setup(space, sctx);
     [vw, vh] = setup(solver, vctx);
     if ($("autoFit").checked) fit();
-    drawAll();
+    if (state.valid !== false) fitSolver();
+    drawAll(); drawSolverPreview();
   }
   window.addEventListener("resize", resize);
+  /* 巡游折叠/展开会改变舞台高度，窗口内布局变化都由 RO 兜底重取画布尺寸 */
+  let roTimer = 0;
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => {
+      clearTimeout(roTimer);
+      roTimer = setTimeout(resize, 60);
+    });
+    for (const stage of [bench, space, solver].map((c) => c.parentElement)) ro.observe(stage);
+  }
   document.addEventListener("visibilitychange", () => { if (document.hidden) stop(); });
   document.addEventListener("i18n:change", () => {
     if (state.playing) $("benchPlay").innerHTML = t("bench.btn.pause");
-    update(); drawAll();
+    refreshCruiseToggle();
+    update(); drawAll(); drawSolverPreview();
   });
 
   /* ---------- 对外接口（§04 求解台联动） ---------- */
   window.LAB = {
-    state,
-    fit, setT, update, drawAll, drawSolverPreview,
+    state, solverView,
+    fit, fitSolver, setT, update, drawAll, drawSolverPreview,
     anglesAt, currentAngles, num, deg, drawGeometry, setup,
   };
 
-  resize(); update();
+  resize(); update(); refreshCruiseToggle();
   requestAnimationFrame(frame);
 })();

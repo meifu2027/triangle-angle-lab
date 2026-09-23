@@ -31,12 +31,14 @@
       "prob.c2.body": "A 位于底边中点正上方，&ang;B = &ang;C。此刻 &ang;A 取到全程最大值 53.13&deg;。",
       "prob.c3.title": "走向右端无穷远",
       "prob.c3.body": "&ang;C 无限逼近 180&deg;。曲线的终点与起点在单纯形的另一端遥遥相望。",
-      /* § 02 */
+      /* § 02（并排联动：实验台 × 角度空间） */
       "lab1.no": "§ 02 · 实验室",
-      "lab1.title": "平行线实验台",
+      "lab1.title": "平行实验台 · 角度空间",
       "lab1.desc":
-        "拖动 A——或让它自己滑向无穷远。三个角的实时读数在右侧面板；底边与高可重新设定，" +
-        "角度空间中的轨迹曲线会随之改变。",
+        "两块画布共享同一份三角形状态：拖动 A——或点「巡游」让它沿平行线往返滑行；" +
+        "底边与高可拖动滑块，也可直接输入任意正数。下方面板给出三内角实时读数、位置与图层控制。",
+      "lab1.tag": "Ⅰ · 平行线实验台",
+      "lab2.tag": "Ⅱ · 角度空间",
       "bench.hint": "拖动 A 沿平行线移动 · 拖向边缘可滑向无穷远 · 滚轮缩放",
       "bench.panel.params": "参数",
       "bench.base": "底边 a",
@@ -47,22 +49,16 @@
       "bench.mid": "中点",
       "bench.posInf": "+∞",
       "bench.panel.measure": "测量",
+      "bench.panel.view": "显示与图层",
       "bench.aids": "显示垂线与角弧",
       "bench.autofit": "自动取景",
       "bench.btn.play": "▶ 巡游",
       "bench.btn.pause": "⏸ 暂停",
       "bench.btn.reset": "↺ 重置",
+      "bench.cruise.expand": "⊞ 展开参数",
+      "bench.cruise.collapse": "⊟ 折叠参数",
       "bench.err.t": "请输入有效的有限数（如 −2、1e6），或 ±∞。",
-      /* § 03 */
-      "lab2.no": "§ 03 · 实验室",
-      "lab2.title": "角度空间",
-      "lab2.desc":
-        "以 &ang;A、&ang;B、&ang;C 为三根轴，每个三角形都是空间中的一点 P。" +
-        "内角和把 P 压在 x+y+z = 180&deg; 的正三角形截面上；固定底边与高之后，" +
-        "A 的全程滑动只留下一条开曲线——从 (0&deg;, 180&deg;, 0&deg;) 走向 (0&deg;, 0&deg;, 180&deg;)。" +
-        "拖动画面旋转视角。",
-      "space.hint": "拖动旋转视角 · 滚轮缩放 · P 随上方实验台联动",
-      "space.panel.layers": "图层",
+      "space.hint": "拖动旋转视角 · 滚轮缩放 · 与实验台联动",
       "space.plane": "约束平面 x+y+z = 180°",
       "space.curve": "轨迹曲线（当前 a、h）",
       "space.axes": "三根坐标轴",
@@ -71,14 +67,14 @@
       "space.sum": "内角和",
       "space.note": "曲线在两端的极限点即 § 01 的两个退化时刻；顶点位于中点上方时，P 恰在曲线的最「高」处。",
       "space.btn.reset": "↺ 重置视角",
-      /* § 04 */
-      "lab3.no": "§ 04 · 实验室",
+      /* § 03 */
+      "lab3.no": "§ 03 · 实验室",
       "lab3.title": "三角形求解台",
       "lab3.desc":
         "从七个量里勾选你已知的那几个——两角一边、三边、两边夹角……满足最低独立条件即可解出整个三角形：" +
         "三边、三高、面积与周长。条件冲突或不足会说明原因；存在两解时可切换查看。" +
-        "求解结果同步到上方两个实验台。",
-      "solver.hint": "预览随求解结果更新",
+        "求解结果同步到上方实验台，拖动预览中的顶点 A 还能反向微调已知量。",
+      "solver.hint": "拖动顶点 A · 勾选的已知量实时回写",
       "solver.panel.presets": "快捷组合",
       "solver.preset.aas": "两角一边",
       "solver.preset.aah": "两角一高",
@@ -90,8 +86,8 @@
       "solver.panel.known": "已知量",
       "solver.knownNote": "勾选后输入数值或拖动滑块，未勾选的量自动计算。h 指定为 A 到 BC 的高。",
       "solver.panel.result": "求解结果",
-      /* § 05 */
-      "lab4.no": "§ 05",
+      /* § 04 */
+      "lab4.no": "§ 04",
       "lab4.title": "纸上的推导",
       "lab4.desc": "以上所有图形背后的五段推导——从坐标化到正弦定理与 Heron 公式。",
       "fx1.title": "坐标化",
@@ -190,12 +186,15 @@
       "prob.c2.body": "A sits directly above the midpoint of the base, so &ang;B = &ang;C. Right here &ang;A reaches its journey-wide maximum of 53.13&deg;.",
       "prob.c3.title": "Off to +infinity",
       "prob.c3.body": "&ang;C approaches 180&deg;. The end of the curve faces its beginning across the far side of the simplex.",
-      /* § 02 */
+      /* § 02 (side-by-side linked: bench × angle space) */
       "lab1.no": "§ 02 · LAB",
-      "lab1.title": "The Parallel-Line Bench",
+      "lab1.title": "The Parallel Bench · Angle Space",
       "lab1.desc":
-        "Drag A — or let it cruise to infinity on its own. Live angle readouts sit in the panel; " +
-        "reset the base and height, and the trajectory curve in the angle space changes with them.",
+        "Both canvases share one triangle state: drag A — or press “Cruise” and let it sweep to and fro along the parallel line. " +
+        "Set the base and height by slider or by typing any positive number; " +
+        "the panel below carries live angle readouts, position and layer controls.",
+      "lab1.tag": "Ⅰ · PARALLEL BENCH",
+      "lab2.tag": "Ⅱ · ANGLE SPACE",
       "bench.hint": "Drag A along the parallel line · drag to the edge to glide to infinity · scroll to zoom",
       "bench.panel.params": "Parameters",
       "bench.base": "Base a",
@@ -206,22 +205,16 @@
       "bench.mid": "Midpoint",
       "bench.posInf": "+∞",
       "bench.panel.measure": "Measurements",
+      "bench.panel.view": "View & layers",
       "bench.aids": "Show altitude & angle arcs",
       "bench.autofit": "Auto framing",
       "bench.btn.play": "▶ Cruise",
       "bench.btn.pause": "⏸ Pause",
       "bench.btn.reset": "↺ Reset",
+      "bench.cruise.expand": "⊞ Show panel",
+      "bench.cruise.collapse": "⊟ Hide panel",
       "bench.err.t": "Enter a finite number (e.g. −2, 1e6) or ±∞.",
-      /* § 03 */
-      "lab2.no": "§ 03 · LAB",
-      "lab2.title": "The Angle Space",
-      "lab2.desc":
-        "Take &ang;A, &ang;B, &ang;C as three axes: every triangle is a single point P. " +
-        "The angle sum pins P onto the equilateral slice x+y+z = 180&deg;; with base and height fixed, " +
-        "A’s whole journey leaves behind one open curve — from (0&deg;, 180&deg;, 0&deg;) to (0&deg;, 0&deg;, 180&deg;). " +
-        "Drag the scene to orbit.",
-      "space.hint": "Drag to orbit · scroll to zoom · P follows the bench above",
-      "space.panel.layers": "Layers",
+      "space.hint": "Drag to orbit · scroll to zoom · linked with the bench",
       "space.plane": "Constraint plane x+y+z = 180°",
       "space.curve": "Trajectory curve (current a, h)",
       "space.axes": "The three axes",
@@ -230,15 +223,15 @@
       "space.sum": "Angle sum",
       "space.note": "The curve’s two limit points are the degenerate moments of § 01; with the vertex above the midpoint, P sits at the “highest” point of the curve.",
       "space.btn.reset": "↺ Reset view",
-      /* § 04 */
-      "lab3.no": "§ 04 · LAB",
+      /* § 03 */
+      "lab3.no": "§ 03 · LAB",
       "lab3.title": "The Triangle Solver",
       "lab3.desc":
         "Tick whichever of the seven quantities you know — two angles and a side, three sides, two sides and the included angle… " +
         "Meet the minimum of independent data and the whole triangle resolves: all sides, all heights, area and perimeter. " +
         "Conflicting or insufficient data is explained on the spot; switch between solutions when there are two. " +
-        "Results sync to the two benches above.",
-      "solver.hint": "Preview updates with each solve",
+        "Results sync to the benches above, and dragging vertex A in the preview tunes the ticked quantities in return.",
+      "solver.hint": "Drag vertex A — ticked quantities update live",
       "solver.panel.presets": "Shortcuts",
       "solver.preset.aas": "AA + side",
       "solver.preset.aah": "AA + height",
@@ -250,8 +243,8 @@
       "solver.panel.known": "Known quantities",
       "solver.knownNote": "Tick a quantity, then type a value or drag its slider; unticked quantities are computed. h is the height from A to BC.",
       "solver.panel.result": "Result",
-      /* § 05 */
-      "lab4.no": "§ 05",
+      /* § 04 */
+      "lab4.no": "§ 04",
       "lab4.title": "Derivations on Paper",
       "lab4.desc": "Five derivations behind every figure above — from coordinates to the law of sines and Heron’s formula.",
       "fx1.title": "Coordinates",

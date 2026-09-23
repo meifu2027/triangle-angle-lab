@@ -30,6 +30,7 @@
 
   let lastResult = null;
   let selection = 0;
+  let draggingA = false; /* 拖 A 期间冻结预览取景，避免视图随三角形尺寸抖动 */
 
   /* ---------- 构建已知量行与结果格 ---------- */
   function buildKnownGrid() {
@@ -104,6 +105,7 @@
     const s = LAB.state;
     s.base = tri.a; s.height = tri.h; s.t = tri.x; s.limit = 0; s.valid = true;
     LAB.fit(); LAB.update(); LAB.drawAll();
+    if (!draggingA) { LAB.fitSolver(); LAB.drawSolverPreview(); }
   }
 
   function fillComputed(tri, shape) {
@@ -190,6 +192,52 @@
     if (tri) applySolution(tri);
     renderResults(lastResult);
   });
+
+  /* ---------- 预览画布：拖动顶点 A，勾选的已知量实时回写并重解 ---------- */
+  const solverCanvas = $("solverCanvas");
+  const solverLocal = (e) => {
+    const r = solverCanvas.getBoundingClientRect();
+    return [e.clientX - r.left, e.clientY - r.top];
+  };
+  solverCanvas.addEventListener("pointerdown", (e) => {
+    if (!lastResult || !lastResult.solutions.length) return;
+    const s = LAB.state, v = LAB.solverView;
+    const w = solverCanvas.clientWidth, h = solverCanvas.clientHeight;
+    if (!(w > 0) || !(h > 0)) return;
+    const p = solverLocal(e);
+    const ax = (s.t - v.center) * v.scale + w / 2;
+    const ay = h * 0.76 - s.height * v.scale;
+    if (Math.hypot(p[0] - ax, p[1] - ay) > 52) return; /* 只允许从顶点 A 附近抓取 */
+    draggingA = true;
+    try { solverCanvas.setPointerCapture(e.pointerId); } catch (err) { /* 合成/非激活指针下允许失败 */ }
+    solverCanvas.classList.add("is-grabbing");
+  });
+  solverCanvas.addEventListener("pointermove", (e) => {
+    if (!draggingA) return;
+    const s = LAB.state, v = LAB.solverView;
+    const w = solverCanvas.clientWidth, h = solverCanvas.clientHeight;
+    const p = solverLocal(e);
+    const x = v.center + (p[0] - w / 2) / v.scale;
+    const y = (h * 0.76 - p[1]) / v.scale;
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+    const a = s.base; /* 拖动不改底边：B、C 固定，其余量全部重算 */
+    const yy = Math.max(y, a * 0.02, 1e-6); /* 不允许拖成退化三角形 */
+    const tri = fromXY(a, x, yy);
+    if (!tri) return;
+    for (const [k] of DEFS) if ($("known-" + k).checked) {
+      $("input-" + k).value = LAB.num(tri[k]).replace("—", "");
+      refreshRange(k);
+    }
+    solve();
+    LAB.drawSolverPreview(); /* 取景被 applySolution 冻结，这里补一次静态重绘 */
+  });
+  const endSolverDrag = () => {
+    if (!draggingA) return;
+    draggingA = false;
+    solverCanvas.classList.remove("is-grabbing");
+    LAB.fitSolver(); LAB.drawSolverPreview(); /* 松手后重新取景 */
+  };
+  for (const ev of ["pointerup", "pointercancel", "lostpointercapture"]) solverCanvas.addEventListener(ev, endSolverDrag);
 
   /* ---------- 语言切换刷新（保留当前求解状态） ---------- */
   document.addEventListener("i18n:change", () => {
