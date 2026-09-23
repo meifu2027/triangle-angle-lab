@@ -39,7 +39,8 @@
     const h = baseY - topY;
     const cx = W / 2;
     const span = Math.max(a * 1.6, W * 0.5);
-    const x = cx + span * Math.tan(phase * 0.92);
+    /* sin 摆动：相位单调递增，正弦周期性天然往返——两端自然减速折返，无跳变 */
+    const x = cx + span * Math.sin(phase);
 
     const B = [cx - a / 2, baseY], C = [cx + a / 2, baseY], A = [x, topY];
 
@@ -82,8 +83,7 @@
 
   let raf = null;
   function loop() {
-    if (phase > 0.9) phase = -0.9;
-    phase += 0.0016;
+    phase = (phase + 0.0028) % (Math.PI * 2);
     drawHero();
     raf = requestAnimationFrame(loop);
   }
